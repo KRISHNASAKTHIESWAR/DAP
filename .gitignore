@@ -1,0 +1,34 @@
+# ─── Secrets & Environment ────────────────────────────────────────
+.env
+*.env.*
+
+# ─── Python ───────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ─── Virtual Environments ─────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ─── Test & Coverage Artifacts ────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ─── IDE / OS ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# ─── Pipeline Output ──────────────────────────────────────────────
+secured_data.csv
+raw_data.csv
