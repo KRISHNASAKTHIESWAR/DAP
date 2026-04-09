@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CI Pipeline – Secure Data Anonymization Pipeline
+#
+# Triggers  : push / PR to main
+# Jobs      : test  → build Docker image
+# Secrets   : HASH_SALT injected via GitHub Secrets (never hard-coded)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI – Anonymization Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Job 1: Run the Pytest suite ────────────────────────────────────────────
+  test:
+    name: Run Pytest Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up the exact Python version used in the container
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "pip"             # Cache pip dependencies for faster runs
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 4. Run the full Pytest suite
+      #    HASH_SALT is sourced from GitHub Secrets.
+      #    A safe fallback is provided so forks / open PRs can still run CI
+      #    without access to the repository secret.
+      - name: Run Pytest
+        env:
+          HASH_SALT: ${{ secrets.HASH_SALT || 'fallback_test_salt' }}
+        run: pytest test_anonymizer.py -v --tb=short
+
+  # ── Job 2: Build the Docker image ──────────────────────────────────────────
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test          # Only build if all tests pass
+
+    steps:
+      # 1. Check out source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Build the Docker image
+      #    The image is tagged with both the git SHA (immutable) and 'latest'.
+      #    HASH_SALT is intentionally NOT baked into the image layer;
+      #    it must be injected at container runtime via --env.
+      - name: Build Docker image
+        run: |
+          docker build \
+            --tag dap-anonymizer:${{ github.sha }} \
+            --tag dap-anonymizer:latest \
+            .
+
+      # 3. Smoke-test: verify the image starts and Pytest runs inside it
+      - name: Smoke-test container (inject secret at runtime)
+        run: |
+          docker run --rm \
+            --env HASH_SALT="${{ secrets.HASH_SALT || 'fallback_test_salt' }}" \
+            dap-anonymizer:latest

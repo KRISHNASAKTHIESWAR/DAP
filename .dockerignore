@@ -1,0 +1,30 @@
+# ─── Secrets (must NEVER enter the image) ────────────────────────
+.env
+*.env.*
+
+# ─── Git internals ────────────────────────────────────────────────
+.git
+.gitignore
+
+# ─── Python cache ─────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ─── Virtual environments ─────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ─── Test / coverage artifacts ────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ─── CI / IDE ─────────────────────────────────────────────────────
+.github/
+.vscode/
+.idea/
+
+# ─── Pipeline output ──────────────────────────────────────────────
+secured_data.csv
