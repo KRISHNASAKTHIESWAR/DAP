@@ -29,7 +29,6 @@ RUN pip install --no-cache-dir --upgrade pip \
 # Secrets (.env) are intentionally excluded via .dockerignore (never baked in).
 COPY anonymizer.py .
 COPY test_anonymizer.py .
-COPY raw_data.csv .
 
 # ── Switch to non-root user ───────────────────────────────────────────────────
 USER appuser
